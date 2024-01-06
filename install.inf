@@ -1,0 +1,20 @@
+[info]
+title=Hotspots
+desc=(to write)
+type=cudatext-plugin
+subdir=cuda_hotspots
+homepage=(to write)
+
+[item1]
+section=events
+events=on_save
+
+[item2]
+section=commands
+caption=Hotspots\Open side panel
+method=open_side_panel
+
+[sidebar1]
+hint=Hotspots
+icon={dir}/icon.png
+method=open_side_panel
