@@ -203,6 +203,7 @@ class Command:
                 fpath = k.replace("|",os.path.sep)
                 fpath_expanded = os.path.expanduser(fpath) # expand "~" for linux
                 line_numbers = v.split(' ')
+                line_numbers.reverse()
                 for number in line_numbers:
                     m = re.match(r'^\d+', number)
                     line = int(m.group()) if m else None
@@ -213,6 +214,7 @@ class Command:
         for h in ed_handles():
             e = Editor(h)
             bookmarks_tab = e.bookmark(BOOKMARK_GET_ALL, 0)
+            bookmarks_tab.reverse()
             for b in bookmarks_tab:
                 fpath = e.get_filename("*")
                 type = 1 # file
