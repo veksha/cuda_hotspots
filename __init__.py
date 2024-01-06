@@ -182,7 +182,7 @@ class Command:
             with open(fn_bookmarks) as file:
                 bookmarks_json = json.load(file)
         except: pass
-        if bookmarks_json:
+        if bookmarks_json and 'bookmarks' in bookmarks_json:
             bookmarks_item = None
             for k,v in bookmarks_json['bookmarks'].items():
                 fpath = k.replace("|",os.path.sep)
