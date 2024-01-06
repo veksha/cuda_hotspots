@@ -153,9 +153,18 @@ class Command:
                         file_open(fpath, options="/preview")
                         ed.focus()
                 elif parent_data  == 'bm':
-                    fpath, line = data
-                    file_open(fpath, options="/preview")
-                    ed.set_caret(0, int(line))
+                    type, fpath, line = data
+                    type = int(type)
+                    if type == 1: # file
+                        file_open(fpath, options="/preview")
+                        ed.set_caret(0, int(line))
+                    elif type == 2: # unsaved tab
+                        handle = int(fpath)
+                        for h in ed_handles():
+                            e = Editor(h)
+                            if handle == e.get_prop(PROP_HANDLE_SELF):
+                                e.focus()
+                                e.set_caret(0, int(line))
 
     def set_imagelist_size(self, imglist):
         imagelist_proc(imglist, IMAGELIST_SET_SIZE, (24, 24))
@@ -180,6 +189,9 @@ class Command:
             return
         tree_proc(self.h_tree, TREE_ITEM_DELETE)
         
+        bookmarks = [] # list of tuple (file,line,type)
+        
+        # 1. collect bookmarks from "history files.json"
         bookmarks_json = None
         try:
             with open(fn_bookmarks) as file:
@@ -195,26 +207,45 @@ class Command:
                     m = re.match(r'^\d+', number)
                     line = int(m.group()) if m else None
                     if line and os.path.isfile(fpath_expanded):
-                        if not bookmarks_item:
-                            bookmarks_item = tree_proc(
-                                self.h_tree,
-                                TREE_ITEM_ADD,
-                                text="bookmarks",
-                                data='bm'
-                            )
-                        tree_proc(
-                            self.h_tree,
-                            TREE_ITEM_ADD,
-                            id_item=bookmarks_item,
-                            text=os.path.basename(fpath)
-                                + ", "+str(line+1)
-                                + " ("
-                                + os.path.dirname(fpath)
-                                + ")",
-                            data=fpath+"|"+str(line)
-                        )
-            tree_proc(self.h_tree, TREE_ITEM_UNFOLD_DEEP)
+                        bookmarks.append((fpath_expanded, line, 1))
         
+        # 2. collect bookmarks of opened tabs
+        for h in ed_handles():
+            e = Editor(h)
+            bookmarks_tab = e.bookmark(BOOKMARK_GET_ALL, 0)
+            for b in bookmarks_tab:
+                fpath = e.get_filename("*")
+                type = 1 # file
+                if not fpath:
+                    fpath = e.get_prop(PROP_TAB_TITLE) + chr(3) + str(e.get_prop(PROP_HANDLE_SELF))
+                    type = 2 # unsaved tab
+                bookmarks.append((fpath, b['line'], type))
+        
+        
+        # bookmarks collected: add them to the tree
+        bookmarks = list(dict.fromkeys(bookmarks)) # deduplicate
+        for b in bookmarks:
+            fpath, line, type = b
+            if not bookmarks_item:
+                bookmarks_item = tree_proc(
+                    self.h_tree,
+                    TREE_ITEM_ADD,
+                    text="bookmarks",
+                    data='bm'
+                )
+            text = ''
+            data = ''
+            if type == 1: # file
+                text = os.path.basename(fpath) + ", "+str(line+1) + " (" + os.path.dirname(fpath) + ")"
+                data=str(type)+"|"+fpath+"|"+str(line)
+            elif type == 2: # unsaved tab
+                fpath,handle = fpath.split(chr(3))
+                text=fpath + ", "+str(line+1)
+                data=str(type)+"|"+handle+"|"+str(line) # TODO: editor handle?
+            tree_proc(self.h_tree, TREE_ITEM_ADD, id_item=bookmarks_item, text=text, data=data)
+        tree_proc(self.h_tree, TREE_ITEM_UNFOLD_DEEP)
+        
+        # 3. collect modified git repo files
         fpath = ed.get_filename("*")
         if not os.path.isfile(fpath):
             return
@@ -266,7 +297,6 @@ class Command:
                 )
 
         tree_proc(self.h_tree, TREE_ITEM_UNFOLD_DEEP)
-        
 
     def action_save_project_as(self, info=None):
         msg_box('Save Project As action', MB_OK)
