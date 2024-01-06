@@ -162,7 +162,7 @@ class Command:
                         handle = int(fpath)
                         for h in ed_handles():
                             e = Editor(h)
-                            if handle == e.get_prop(PROP_HANDLE_SELF):
+                            if handle == h:
                                 e.focus()
                                 e.set_caret(0, int(line))
 
@@ -217,7 +217,7 @@ class Command:
                 fpath = e.get_filename("*")
                 type = 1 # file
                 if not fpath:
-                    fpath = e.get_prop(PROP_TAB_TITLE) + chr(3) + str(e.get_prop(PROP_HANDLE_SELF))
+                    fpath = e.get_prop(PROP_TAB_TITLE) + chr(3) + str(h)
                     type = 2 # unsaved tab
                 bookmarks.append((fpath, b['line'], type))
         
