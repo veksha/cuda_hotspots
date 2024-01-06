@@ -67,6 +67,7 @@ class Command:
 
     def __init__(self):
         self.h_menu = None
+        self.h_tree = None
 
     def upd_history_combo(self):
         self.input.set_prop(PROP_COMBO_ITEMS, '\n'.join(self.history))
@@ -175,6 +176,8 @@ class Command:
     
 
     def action_collect_hotspots(self, info=None):
+        if not self.h_tree:
+            return
         tree_proc(self.h_tree, TREE_ITEM_DELETE)
         
         bookmarks_json = None
