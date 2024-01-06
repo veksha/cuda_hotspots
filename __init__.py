@@ -161,8 +161,8 @@ class Command:
                     elif type == 2: # unsaved tab
                         handle = int(fpath)
                         for h in ed_handles():
-                            e = Editor(h)
                             if handle == h:
+                                e = Editor(h)
                                 e.focus()
                                 e.set_caret(0, int(line))
 
