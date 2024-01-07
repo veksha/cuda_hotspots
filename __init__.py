@@ -2,6 +2,8 @@ import os
 import re
 import subprocess
 import json
+from itertools import islice
+
 import cudatext_cmd as cmds
 from cudatext import *
 from cudatext_keys import *
@@ -42,6 +44,13 @@ def __git(params, cwd=None):
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     result = subprocess.run(params, capture_output=True, startupinfo=startupinfo, cwd=cwd)
     return result.returncode, result.stdout if result.returncode == 0 else result.stderr
+
+def read_specific_line(fpath, line):
+    with open(fpath) as input_file:
+        line = next(islice(input_file, line, line+1), None)
+        if line is not None:
+            return line[:100].strip()
+    return ""
 
 def collect_hotspots(func):
     def wrapper(self, *args, **kwargs):
@@ -135,7 +144,7 @@ class Command:
         pass # decorator will trigger on_save
         
     def hotspot_open(self, type, data):
-        data = data.split('|')
+        data = data.split(chr(3))
         if type == 'git':
             top_level, fpathpart = data[:2]
             if " -> " in fpathpart:
@@ -145,7 +154,7 @@ class Command:
                 file_open(fpath) #, options="/preview")
                 ed.focus()
         elif type  == 'bm':
-            type, fpath, line = data
+            type, fpath, line = data[:3]
             type = int(type)
             if type == 1: # file
                 file_open(fpath) #, options="/preview")
@@ -214,7 +223,7 @@ class Command:
                     m = re.match(r'^\d+', number)
                     line = int(m.group()) if m else None
                     if line and os.path.isfile(fpath_expanded):
-                        bookmarks.append((fpath_expanded, line, 1))
+                        bookmarks.append((fpath_expanded, line, 1, read_specific_line(fpath_expanded, line)))
 
         # 2. collect bookmarks of opened tabs
         for h in ed_handles():
@@ -227,12 +236,13 @@ class Command:
                 if not fpath:
                     fpath = e.get_prop(PROP_TAB_TITLE) + chr(3) + str(h)
                     type = 2 # unsaved tab
-                bookmarks.append((fpath, b['line'], type))
+                line_str = e.get_text_line(b['line'], 100).strip()
+                bookmarks.append((fpath, b['line'], type, line_str))
 
         # bookmarks collected: add them to the tree
         bookmarks_item = None
         for b in bookmarks:
-            fpath, line, type = b
+            fpath, line, type, line_str = b
             if not bookmarks_item:
                 bookmarks_item = tree_proc(
                     self.h_tree,
@@ -243,12 +253,12 @@ class Command:
             text = ''
             data = ''
             if type == 1: # file
-                text = os.path.basename(fpath) + ", "+str(line+1) + " (" + os.path.dirname(fpath) + ")"
-                data=str(type)+"|"+fpath+"|"+str(line)
+                text = f"{line_str} ({fpath}:{str(line+1)})"
+                data = str(type) + chr(3) + fpath + chr(3) + str(line) + chr(3) + line_str
             elif type == 2: # unsaved tab
                 fpath, handle = fpath.split(chr(3))
-                text=fpath + ", "+str(line+1)
-                data=str(type)+"|"+handle+"|"+str(line) # TODO: editor handle?
+                text = f"{line_str} ({fpath}:{str(line+1)})"
+                data = str(type) + chr(3) + handle + chr(3) + str(line) + chr(3) + line_str
             tree_proc(self.h_tree, TREE_ITEM_ADD, id_item=bookmarks_item, text=text, data=data)
         tree_proc(self.h_tree, TREE_ITEM_UNFOLD_DEEP)
 
@@ -302,7 +312,7 @@ class Command:
                     id_item=git,
                     index=-1,
                     text=icon+fpathpart,
-                    data=top_level + "|" + fpathpart + "|" + status
+                    data=top_level + chr(3) + fpathpart + chr(3) + status
                 )
 
         tree_proc(self.h_tree, TREE_ITEM_UNFOLD_DEEP)
@@ -317,7 +327,7 @@ class Command:
         if h_parent:
             parent_data = tree_proc(self.h_tree, TREE_ITEM_GET_PROPS, h_parent)['data']
             if parent_data == 'git':
-                top_level, fpathpart, status = selected_data.split('|')
+                top_level, fpathpart, status = selected_data.split(chr(3))
                 if " -> " in fpathpart:
                     fpathpart = fpathpart.split(" -> ")[0]
                 fpath = os.path.join(top_level, fpathpart)
@@ -379,7 +389,16 @@ class Command:
                 for item in items:
                     hotspots.append({'text': item['text'], 'hotspot_type': item_parent['data'], 'data': item['data']})
             
-            items = [i['text'] for i in hotspots]
+            items = []
+            for i in hotspots:
+                if i['hotspot_type'] == 'git':
+                    top_level, fpathpart, status = i['data'].split(chr(3))
+                    #items.append(f"{status}: {fpathpart}\t{top_level}")
+                    items.append(f"{i['text']}\t{top_level}")
+                elif i['hotspot_type'] == 'bm':
+                    fpath, line, line_str = i['data'].split(chr(3))[1:]
+                    items.append(f"{line_str}\t{fpath}:{str(int(line)+1)}")
+            
             ind = dlg_menu(DMENU_LIST, items, caption=_('Hotspots'))
             if ind is not None:
                 hotspot = hotspots[ind]
