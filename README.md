@@ -12,5 +12,12 @@ Bookmarks list shows 2 lists, combined/deduplicated:
 
 Note: You must click "Collect hotspots" to refresh the list, also it is refreshed on save file action.
 
+For filenames in the 'Git' panel item, plugin supports context menu with items:
+- Add
+- Unstage
+- Restore...
+- Diff head
+
 Author: Yuriy Balyuk, https://github.com/veksha
 License: MIT
+Icons: from Lazarus IDE project, free license.
