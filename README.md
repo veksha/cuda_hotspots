@@ -21,3 +21,4 @@ For filenames in the 'Git' panel item, plugin supports context menu with items:
 Author: Yuriy Balyuk, https://github.com/veksha
 License: MIT
 Icons: from Lazarus IDE project, free license.
+Sidebar icon: by Markus Feichtinger, mafei at gmx.at, License is free for commercial use.
