@@ -1,0 +1,6 @@
+﻿2024.01.07
+- fix: made a lot of bug fixes and optimizations (thanks Alexey T. for alpha testing)
++ add: more i18n (thanks Alexey T.)
+
+2024.01.06
+initial version
