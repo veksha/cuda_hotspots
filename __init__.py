@@ -4,6 +4,7 @@ import subprocess
 import json
 import cudatext_cmd as cmds
 from cudatext import *
+from cudatext_keys import *
 
 from cudax_lib import get_translation
 _ = get_translation(__file__)  # i18n
@@ -71,8 +72,18 @@ class Command:
         #dlg_proc(self.h_side, DLG_CTL_FOCUS, name='list')
         app_proc(PROC_SIDEPANEL_ACTIVATE, (self.title_side, True)) # True - set focus
 
+    def form_key_down(self, id_dlg, id_ctl, data):
+        if id_ctl in [VK_SPACE, VK_ENTER, VK_F4]:
+            self.callback_list_dblclick(id_dlg, id_ctl, data)
+            return False #block key
+    
     def init_side_form(self):
         h=dlg_proc(0, DLG_CREATE)
+        
+        dlg_proc(h, DLG_PROP_SET, {
+            'keypreview': True,
+            'on_key_down': self.form_key_down,
+            } )
 
         n = dlg_proc(h, DLG_CTL_ADD, 'toolbar')
         dlg_proc(h, DLG_CTL_PROP_SET, index=n, prop={
