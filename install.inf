@@ -16,6 +16,11 @@ method=open_side_panel
 
 [item3]
 section=commands
+caption=Hotspots\Collect hotspots
+method=action_collect_hotspots
+
+[item4]
+section=commands
 caption=Hotspots\Go to hotspot
 method=go_to_hotspot
 
