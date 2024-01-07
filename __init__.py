@@ -13,7 +13,6 @@ fn_icon = os.path.join(os.path.dirname(__file__), 'icon.png')
 fn_config = os.path.join(app_path(APP_DIR_SETTINGS), 'cuda_hotspots.ini')
 fn_bookmarks = os.path.join(app_path(APP_DIR_SETTINGS), 'history files.json')
 IS_WIN = os.name=='nt'
-IS_MAC = sys.platform=='darwin'
 THEME_TOOLBAR_MAIN = 'toolbar_main'
 GIT_SHOW_UNTRACKED_FILES = False
 
@@ -38,7 +37,7 @@ def _git_diff(filepath, cwd):
 
 def __git(params, cwd=None):
     startupinfo = None
-    if os.name == 'nt':
+    if IS_WIN:
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     result = subprocess.run(params, capture_output=True, startupinfo=startupinfo, cwd=cwd)
@@ -159,9 +158,7 @@ class Command:
         imagelist_proc(imglist, IMAGELIST_SET_SIZE, (24, 24))
 
     def toolbar_add_btn(self, h_bar, hint, icon=-1, command=''):
-        toolbar_proc(h_bar, TOOLBAR_ADD_ITEM)
-        cnt = toolbar_proc(h_bar, TOOLBAR_GET_COUNT)
-        h_btn = toolbar_proc(h_bar, TOOLBAR_GET_BUTTON_HANDLE, index=cnt-1)
+        h_btn = toolbar_proc(h_bar, TOOLBAR_ADD_ITEM)
         if hint=='-':
             button_proc(h_btn, BTN_SET_KIND, BTNKIND_SEP_HORZ)
         else:
