@@ -5,6 +5,7 @@
 + add: new command "Go to hotspot" (thanks Alexey T. and Miroslav Matas)
 - fix: temporarily disabled "preview" tab feature because of CudaText bug
 - fix: better deduplication
+- fix: UnboundLocalError (thanks Miroslav Matas)
 
 2024.01.06
 initial version
