@@ -215,7 +215,7 @@ class Command:
                 bookmarks_item = tree_proc(
                     self.h_tree,
                     TREE_ITEM_ADD,
-                    text="bookmarks",
+                    text=_("Bookmarks"),
                     data='bm'
                 )
             text = ''
@@ -269,7 +269,7 @@ class Command:
                 git = tree_proc(
                     self.h_tree,
                     TREE_ITEM_ADD,
-                    text="git (" + line[3:] + ")",
+                    text="Git (" + line[3:] + ")",
                     data='git'
                 )
             else:
@@ -284,9 +284,6 @@ class Command:
                 )
 
         tree_proc(self.h_tree, TREE_ITEM_UNFOLD_DEEP)
-
-    def action_save_project_as(self, info=None):
-        msg_box('Save Project As action', MB_OK)
 
     def context_menu(self, id_dlg, id_ctl, data='', info=''):
         selected = tree_proc(self.h_tree, TREE_ITEM_GET_SELECTED)
@@ -306,20 +303,20 @@ class Command:
                 if status in ("??", " M", " D"):
                     menu_proc(self.h_menu, MENU_ADD,
                               lambda *args, **kwargs: self.git_add(fpath, top_level),
-                              "Add")
+                              _("Add"))
                 else:
                     menu_proc(self.h_menu, MENU_ADD,
                               lambda *args, **kwargs: self.git_unstage(fpath, top_level),
-                              "Unstage")
+                              _("Unstage"))
                 if status not in ("??"):
                     menu_proc(self.h_menu, MENU_ADD,
                               lambda *args, **kwargs: self.git_restore_ask(fpath, top_level),
-                              "Restore...")
+                              _("Restore..."))
                 if status in (" M", "M ", "MM"):
                     menu_proc(self.h_menu, MENU_ADD, caption="-")
                     menu_proc(self.h_menu, MENU_ADD,
                               lambda *args, **kwargs: self.git_diff(fpath, top_level),
-                              "Diff head")
+                              _("Diff head"))
                 menu_proc(self.h_menu, MENU_SHOW)
 
     @collect_hotspots
@@ -332,7 +329,7 @@ class Command:
 
     @collect_hotspots
     def git_restore_ask(self, filepath, cwd):
-        ok = msg_box("REALLY restore?", MB_OKCANCEL+MB_ICONWARNING)
+        ok = msg_box(_("REALLY restore?"), MB_OKCANCEL+MB_ICONWARNING)
         if ok == ID_OK:
             _git_restore(filepath, cwd)
 
