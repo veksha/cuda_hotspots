@@ -222,7 +222,7 @@ class Command:
                 for number in line_numbers:
                     m = re.match(r'^\d+', number)
                     line = int(m.group()) if m else None
-                    if line and os.path.isfile(fpath_abs):
+                    if line is not None and os.path.isfile(fpath_abs):
                         bookmarks.append((fpath_abs, line, 1, read_specific_line(fpath_abs, line)))
 
         # 2. collect bookmarks of opened tabs
