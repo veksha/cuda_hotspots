@@ -18,23 +18,25 @@ IS_WIN = os.name=='nt'
 THEME_TOOLBAR_MAIN = 'toolbar_main'
 GIT_SHOW_UNTRACKED_FILES = False
 
+git = ['git', '-c', 'core.quotepath=false']
+
 def _git_status(filepath):
-    params = ['git', 'status', "--porcelain", "--branch", "--untracked-files=all"]
+    params = git + ['status', "--porcelain", "--branch", "--untracked-files=all"]
     return __git(params, cwd=os.path.dirname(filepath))
 def _git_toplevel(filepath):
-    params = ['git', 'rev-parse', "--show-toplevel"]
+    params = git + ['rev-parse', "--show-toplevel"]
     return __git(params, cwd=os.path.dirname(filepath))
 def _git_add(filepath, cwd):
-    params = ['git', 'add', filepath]
+    params = git + ['add', filepath]
     return __git(params, cwd)
 def _git_restore(filepath, cwd):
-    params = ['git', 'restore', '--staged', '--worktree', filepath]
+    params = git + ['restore', '--staged', '--worktree', filepath]
     return __git(params, cwd)
 def _git_unstage(filepath, cwd):
-    params = ['git', 'reset', '--mixed', filepath]
+    params = git + ['reset', '--mixed', filepath]
     return __git(params, cwd)
 def _git_diff(filepath, cwd):
-    params = ['git', 'diff', 'HEAD', filepath]
+    params = git + ['diff', 'HEAD', filepath]
     return __git(params, cwd)
 
 def __git(params, cwd=None):

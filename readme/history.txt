@@ -12,6 +12,7 @@
 + add: new toolbar icons (thanks Alexey T.)
 + add: show line content of bookmarks (thanks Miroslav Matas)
 + add: new sidebar icon by Markus Feichtinger
++ add: support cyrillic chars for filenames in git repo, and other codepage fixes.
 
 2024.01.06
 initial version
