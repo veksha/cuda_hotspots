@@ -133,6 +133,30 @@ class Command:
     @collect_hotspots
     def on_save(self, ed_self):
         pass # decorator will trigger on_save
+        
+    def hotspot_open(self, type, data):
+        data = data.split('|')
+        if type == 'git':
+            top_level, fpathpart = data[:2]
+            if " -> " in fpathpart:
+                fpathpart = fpathpart.split(" -> ")[1]
+            fpath = os.path.join(top_level, fpathpart)
+            if fpath and os.path.isfile(fpath):
+                file_open(fpath) #, options="/preview")
+                ed.focus()
+        elif type  == 'bm':
+            type, fpath, line = data
+            type = int(type)
+            if type == 1: # file
+                file_open(fpath) #, options="/preview")
+                ed.set_caret(0, int(line))
+            elif type == 2: # unsaved tab
+                handle = int(fpath)
+                for h in ed_handles():
+                    if handle == h:
+                        e = Editor(h)
+                        e.focus()
+                        e.set_caret(0, int(line))
 
     def callback_list_dblclick(self, id_dlg, id_ctl, data='', info=''):
         id_item = tree_proc(self.h_tree, TREE_ITEM_GET_SELECTED)
@@ -141,28 +165,7 @@ class Command:
             h_parent = props['parent']
             if h_parent:
                 parent_data = tree_proc(self.h_tree, TREE_ITEM_GET_PROPS, h_parent)['data']
-                data = props["data"].split('|')
-                if parent_data == 'git':
-                    top_level, fpathpart, _ = data
-                    if " -> " in fpathpart:
-                        fpathpart = fpathpart.split(" -> ")[1]
-                    fpath = os.path.join(top_level, fpathpart)
-                    if fpath and os.path.isfile(fpath):
-                        file_open(fpath, options="/preview")
-                        ed.focus()
-                elif parent_data  == 'bm':
-                    type, fpath, line = data
-                    type = int(type)
-                    if type == 1: # file
-                        file_open(fpath, options="/preview")
-                        ed.set_caret(0, int(line))
-                    elif type == 2: # unsaved tab
-                        handle = int(fpath)
-                        for h in ed_handles():
-                            if handle == h:
-                                e = Editor(h)
-                                e.focus()
-                                e.set_caret(0, int(line))
+                self.hotspot_open(parent_data, props["data"])
 
     def set_imagelist_size(self, imglist):
         imagelist_proc(imglist, IMAGELIST_SET_SIZE, (24, 24))
@@ -178,8 +181,8 @@ class Command:
             button_proc(h_btn, BTN_SET_DATA1, command)
 
     def action_collect_hotspots(self, info=None):
-        if not self.h_tree:
-            return
+        if not self.h_side:
+            self.init_forms()
         tree_proc(self.h_tree, TREE_ITEM_DELETE)
 
         bookmarks = [] # list of tuple (file,line,type)
@@ -297,6 +300,8 @@ class Command:
 
     def context_menu(self, id_dlg, id_ctl, data='', info=''):
         selected = tree_proc(self.h_tree, TREE_ITEM_GET_SELECTED)
+        if selected is None:
+            return
         props = tree_proc(self.h_tree, TREE_ITEM_GET_PROPS, selected)
         h_parent = props['parent']
         selected_data = props['data']
@@ -351,3 +356,21 @@ class Command:
             ed.set_prop(PROP_LEXER_FILE, 'Diff')
             ed.set_text_all(output.decode())
             ed.set_prop(PROP_MODIFIED, False)
+    
+    def go_to_hotspot(self):
+        hotspots = []
+        self.action_collect_hotspots()
+        items = tree_proc(self.h_tree, TREE_ITEM_ENUM_EX)
+        
+        for item_parent in items:
+            items = tree_proc(self.h_tree, TREE_ITEM_ENUM_EX, item_parent['id'])
+            if items is None:
+                continue
+            for item in items:
+                hotspots.append({'text': item['text'], 'hotspot_type': item_parent['data'], 'data': item['data']})
+        
+        items = [i['text'] for i in hotspots]
+        ind = dlg_menu(DMENU_LIST, items, caption=_('Hotspots'))
+        if ind is not None:
+            hotspot = hotspots[ind]
+            self.hotspot_open(hotspot['hotspot_type'], hotspot["data"])

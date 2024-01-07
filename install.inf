@@ -14,6 +14,11 @@ section=commands
 caption=Hotspots\Open side panel
 method=open_side_panel
 
+[item3]
+section=commands
+caption=Hotspots\Go to hotspot
+method=go_to_hotspot
+
 [sidebar1]
 hint=Hotspots
 icon={dir}/icon.png
