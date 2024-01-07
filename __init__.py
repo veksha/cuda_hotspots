@@ -207,7 +207,7 @@ class Command:
         # 1. collect bookmarks from "history files.json"
         bookmarks_json = None
         try:
-            with open(fn_bookmarks, errors='replace') as file:
+            with open(fn_bookmarks, encoding='utf-8', errors='replace') as file:
                 bookmarks_json = json.load(file)
         except:
             pass
