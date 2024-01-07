@@ -385,4 +385,4 @@ class Command:
                 hotspot = hotspots[ind]
                 self.hotspot_open(hotspot['hotspot_type'], hotspot["data"])
         else:
-            msg_status("No hotspots")
+            msg_status(_("No hotspots"))
