@@ -46,7 +46,8 @@ def __git(params, cwd=None):
     return result.returncode, result.stdout if result.returncode == 0 else result.stderr
 
 def read_specific_line(fpath, line):
-    with open(fpath, errors='replace') as input_file:
+    # TODO: use 'utf-8' for now, but rework to read 'enc' key from "history files.json"?
+    with open(fpath, encoding='utf-8', errors='replace') as input_file:
         line = next(islice(input_file, line, line+1), None)
         if line is not None:
             return line[:100].strip()
