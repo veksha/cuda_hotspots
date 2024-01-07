@@ -255,8 +255,11 @@ class Command:
             if type == 1: # file
                 # Replace the path before the last folder with "..."
                 last_folder = os.path.basename(os.path.dirname(fpath))
-                file_name = os.path.basename(fpath)
-                short_path = os.path.join("...", last_folder, file_name)
+                last_folder2 = os.path.basename(os.path.dirname(os.path.dirname(fpath)))
+                short_path = fpath
+                if last_folder and last_folder2:
+                    file_name = os.path.basename(fpath)
+                    short_path = os.path.join("...", last_folder, file_name)
                 text = f"{line_str} ({short_path}:{str(line+1)})"
                 data = str(type) + chr(3) + fpath + chr(3) + str(line) + chr(3) + line_str
             elif type == 2: # unsaved tab
