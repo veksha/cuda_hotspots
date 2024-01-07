@@ -8,6 +8,7 @@
 - fix: UnboundLocalError (thanks Miroslav Matas)
 - fix: crash when calling go to dialog with no bookmarks (thanks Alexey T.)
 + add: new command "Collect hotspots" (thanks Miroslav Matas)
++ add: show status message instead of showing empty go to dialog (thanks Alexey T.)
 
 2024.01.06
 initial version

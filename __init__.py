@@ -379,8 +379,10 @@ class Command:
                 for item in items:
                     hotspots.append({'text': item['text'], 'hotspot_type': item_parent['data'], 'data': item['data']})
             
-        items = [i['text'] for i in hotspots]
-        ind = dlg_menu(DMENU_LIST, items, caption=_('Hotspots'))
-        if ind is not None:
-            hotspot = hotspots[ind]
-            self.hotspot_open(hotspot['hotspot_type'], hotspot["data"])
+            items = [i['text'] for i in hotspots]
+            ind = dlg_menu(DMENU_LIST, items, caption=_('Hotspots'))
+            if ind is not None:
+                hotspot = hotspots[ind]
+                self.hotspot_open(hotspot['hotspot_type'], hotspot["data"])
+        else:
+            msg_status("No hotspots")
