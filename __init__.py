@@ -186,6 +186,14 @@ class Command:
         tree_proc(self.h_tree, TREE_ITEM_DELETE)
 
         bookmarks = [] # list of tuple (file,line,type)
+        
+        # create list of opened files, will be used for deduplication.
+        opened_files = []
+        for h in ed_handles():
+            e = Editor(h)
+            fpath = e.get_filename("*")
+            if os.path.isfile(fpath):
+                opened_files.append(fpath)
 
         # 1. collect bookmarks from "history files.json"
         bookmarks_json = None
@@ -199,6 +207,8 @@ class Command:
             for k, v in bookmarks_json['bookmarks'].items():
                 fpath = k.replace("|", os.path.sep)
                 fpath_expanded = os.path.expanduser(fpath) # expand "~" for linux
+                if fpath_expanded in opened_files:
+                    continue # deduplication: we don't want info from json, if we can get fresh info from opened tab
                 line_numbers = v.split(' ')
                 line_numbers.reverse()
                 for number in line_numbers:
@@ -221,7 +231,6 @@ class Command:
                 bookmarks.append((fpath, b['line'], type))
 
         # bookmarks collected: add them to the tree
-        bookmarks = list(dict.fromkeys(bookmarks)) # deduplicate
         for b in bookmarks:
             fpath, line, type = b
             if not bookmarks_item:
