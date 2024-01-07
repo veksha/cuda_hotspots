@@ -6,6 +6,7 @@
 - fix: temporarily disabled "preview" tab feature because of CudaText bug
 - fix: better deduplication
 - fix: UnboundLocalError (thanks Miroslav Matas)
+- fix: crash when calling go to dialog with no bookmarks (thanks Alexey T.)
 
 2024.01.06
 initial version

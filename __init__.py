@@ -371,13 +371,14 @@ class Command:
         self.action_collect_hotspots()
         items = tree_proc(self.h_tree, TREE_ITEM_ENUM_EX)
         
-        for item_parent in items:
-            items = tree_proc(self.h_tree, TREE_ITEM_ENUM_EX, item_parent['id'])
-            if items is None:
-                continue
-            for item in items:
-                hotspots.append({'text': item['text'], 'hotspot_type': item_parent['data'], 'data': item['data']})
-        
+        if items is not None:
+            for item_parent in items:
+                items = tree_proc(self.h_tree, TREE_ITEM_ENUM_EX, item_parent['id'])
+                if items is None:
+                    continue
+                for item in items:
+                    hotspots.append({'text': item['text'], 'hotspot_type': item_parent['data'], 'data': item['data']})
+            
         items = [i['text'] for i in hotspots]
         ind = dlg_menu(DMENU_LIST, items, caption=_('Hotspots'))
         if ind is not None:
