@@ -46,7 +46,7 @@ def __git(params, cwd=None):
     return result.returncode, result.stdout if result.returncode == 0 else result.stderr
 
 def read_specific_line(fpath, line):
-    with open(fpath) as input_file:
+    with open(fpath, errors='replace') as input_file:
         line = next(islice(input_file, line, line+1), None)
         if line is not None:
             return line[:100].strip()
@@ -207,7 +207,7 @@ class Command:
         # 1. collect bookmarks from "history files.json"
         bookmarks_json = None
         try:
-            with open(fn_bookmarks) as file:
+            with open(fn_bookmarks, errors='replace') as file:
                 bookmarks_json = json.load(file)
         except:
             pass
