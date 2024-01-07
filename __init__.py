@@ -203,7 +203,6 @@ class Command:
         except:
             pass
         if bookmarks_json and 'bookmarks' in bookmarks_json:
-            bookmarks_item = None
             for k, v in bookmarks_json['bookmarks'].items():
                 fpath = k.replace("|", os.path.sep)
                 fpath_expanded = os.path.expanduser(fpath) # expand "~" for linux
@@ -231,6 +230,7 @@ class Command:
                 bookmarks.append((fpath, b['line'], type))
 
         # bookmarks collected: add them to the tree
+        bookmarks_item = None
         for b in bookmarks:
             fpath, line, type = b
             if not bookmarks_item:
