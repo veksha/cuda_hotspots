@@ -214,16 +214,16 @@ class Command:
         if bookmarks_json and 'bookmarks' in bookmarks_json:
             for k, v in bookmarks_json['bookmarks'].items():
                 fpath = k.replace("|", os.path.sep)
-                fpath_expanded = os.path.expanduser(fpath) # expand "~" for linux
-                if fpath_expanded in opened_files:
+                fpath_abs = os.path.abspath(fpath) # we need full absolute path
+                if fpath_abs in opened_files:
                     continue # deduplication: we don't want info from json, if we can get fresh info from opened tab
                 line_numbers = v.split(' ')
                 line_numbers.reverse()
                 for number in line_numbers:
                     m = re.match(r'^\d+', number)
                     line = int(m.group()) if m else None
-                    if line and os.path.isfile(fpath_expanded):
-                        bookmarks.append((fpath_expanded, line, 1, read_specific_line(fpath_expanded, line)))
+                    if line and os.path.isfile(fpath_abs):
+                        bookmarks.append((fpath_abs, line, 1, read_specific_line(fpath_abs, line)))
 
         # 2. collect bookmarks of opened tabs
         for h in ed_handles():
@@ -253,7 +253,11 @@ class Command:
             text = ''
             data = ''
             if type == 1: # file
-                text = f"{line_str} ({fpath}:{str(line+1)})"
+                # Replace the path before the last folder with "..."
+                last_folder = os.path.basename(os.path.dirname(fpath))
+                file_name = os.path.basename(fpath)
+                short_path = os.path.join("...", last_folder, file_name)
+                text = f"{line_str} ({short_path}:{str(line+1)})"
                 data = str(type) + chr(3) + fpath + chr(3) + str(line) + chr(3) + line_str
             elif type == 2: # unsaved tab
                 fpath, handle = fpath.split(chr(3))
