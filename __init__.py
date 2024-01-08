@@ -35,8 +35,8 @@ def _git_restore(filepath, cwd):
 def _git_unstage(filepath, cwd):
     params = git + ['reset', '--mixed', filepath]
     return __git(params, cwd)
-def _git_diff(filepath, cwd):
-    params = git + ['diff', 'HEAD', filepath]
+def _git_diff(filepath, cwd, head=False):
+    params = git + ['diff', 'HEAD', filepath] if head else git + ['diff', filepath]
     return __git(params, cwd)
 
 def __git(params, cwd=None):
@@ -291,7 +291,9 @@ class Command:
             if line.strip() == "":
                 continue
             code_dict = {
+                # Untracked:
                 "??": "--- ",
+                # Modified, Deleted, New, Renamed:
                 " M": "mod: ",
                 "MM": "[*mod]: ",
                 "M ": "[mod]: ",
@@ -300,6 +302,14 @@ class Command:
                 "A ": "[new]: ",
                 "AM": "[*new]: ",
                 "R ": "[ren]: ",
+                # Unmerged (conflict):
+                "DD": "!del: ",
+                "AU": "[!new]: ",
+                "UD": "!del: ",
+                "UA": "!new: ",
+                "DU": "[!del]: ",
+                "AA": "!new: ",
+                "UU": "!mod: ",
             }
             status = line[:2]
             if status == "??" and not GIT_SHOW_UNTRACKED_FILES:
@@ -344,7 +354,7 @@ class Command:
                 if not self.h_menu:
                     self.h_menu = menu_proc(0, MENU_CREATE)
                 menu_proc(self.h_menu, MENU_CLEAR)
-                if status in ("??", " M", " D"):
+                if status in ("??", " M", " D", "DD", "AU", "UD", "UA", "DU", "AA", "UU"):
                     menu_proc(self.h_menu, MENU_ADD,
                               lambda *args, **kwargs: self.git_add(fpath, top_level),
                               _("Add"))
@@ -359,8 +369,14 @@ class Command:
                 if status in (" M", "M ", "MM"):
                     menu_proc(self.h_menu, MENU_ADD, caption="-")
                     menu_proc(self.h_menu, MENU_ADD,
-                              lambda *args, **kwargs: self.git_diff(fpath, top_level),
+                              lambda *args, **kwargs: self.git_diff(fpath, top_level, head=True),
                               _("Diff head"))
+                if status in ("DD", "AU", "UD", "UA", "DU", "AA", "UU"):
+                    menu_proc(self.h_menu, MENU_ADD, caption="-")
+                    menu_proc(self.h_menu, MENU_ADD,
+                              lambda *args, **kwargs: self.git_diff(fpath, top_level),
+                              _("Diff unmerged"))
+                    
                 menu_proc(self.h_menu, MENU_SHOW)
 
     @collect_hotspots
@@ -377,8 +393,8 @@ class Command:
         if ok == ID_OK:
             _git_restore(filepath, cwd)
 
-    def git_diff(self, filepath, cwd):
-        code, output = _git_diff(filepath, cwd)
+    def git_diff(self, filepath, cwd, head=False):
+        code, output = _git_diff(filepath, cwd, head)
         if code == 0 and output:
             ed.cmd(cmds.cmd_FileNew)
             ed.set_prop(PROP_TAB_TITLE, 'Diff: ' + filepath)
