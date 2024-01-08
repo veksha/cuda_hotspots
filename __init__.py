@@ -239,7 +239,7 @@ class Command:
                 if not fpath:
                     fpath = e.get_prop(PROP_TAB_TITLE) + chr(3) + str(h)
                     type = 2 # unsaved tab
-                line_str = e.get_text_line(b['line'], 500)[:100].strip()
+                line_str = e.get_text_line(b['line'])[:100].strip()
                 bookmarks.append((fpath, b['line'], type, line_str))
 
         # bookmarks collected: add them to the tree
