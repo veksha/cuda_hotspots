@@ -396,22 +396,13 @@ class Command:
     def git_diff(self, filepath, cwd, head=False):
         code, output = _git_diff(filepath, cwd, head)
         if code == 0 and output:
-            ed.cmd(cmds.cmd_FileNew)
-            
-            # workaround for macOS. see: https://github.com/veksha/cuda_hotspots/issues/22
-            # we must wait for New Tab on macOS. let's use timer.
-            def delayed_proc(text, filepath):
-                if ed.get_filename('*') == '' and ed.get_text_all() == '': # ensure we are at correct tab
-                    ed.set_prop(PROP_TAB_TITLE, 'Diff: ' + filepath)
-                    ed.set_prop(PROP_LEXER_FILE, 'Diff')
-                    ed.set_text_all(text)
-                    ed.set_prop(PROP_MODIFIED, False)
-            timer_proc(
-                TIMER_START_ONE,
-                lambda *args, **kwargs: delayed_proc(output.decode(), filepath),
-                50
-            )
-    
+            file_open('')
+            if ed.get_filename('*') == '' and ed.get_text_all() == '': # ensure we are at correct tab
+                ed.set_prop(PROP_TAB_TITLE, 'Diff: ' + filepath)
+                ed.set_prop(PROP_LEXER_FILE, 'Diff')
+                ed.set_text_all(output.decode())
+                ed.set_prop(PROP_MODIFIED, False)
+
     def go_to_hotspot(self):
         hotspots = []
         self.action_collect_hotspots()
