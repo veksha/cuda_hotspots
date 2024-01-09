@@ -397,6 +397,7 @@ class Command:
         code, output = _git_diff(filepath, cwd, head)
         if code == 0 and output:
             ed.cmd(cmds.cmd_FileNew)
+            app_idle(True) # workaround for macOS. see: https://github.com/veksha/cuda_hotspots/issues/22
             ed.set_prop(PROP_TAB_TITLE, 'Diff: ' + filepath)
             ed.set_prop(PROP_LEXER_FILE, 'Diff')
             ed.set_text_all(output.decode())
