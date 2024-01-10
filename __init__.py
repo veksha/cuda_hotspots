@@ -426,7 +426,7 @@ class Command:
                     fpath, line, line_str = i['data'].split(chr(3))[1:]
                     items.append(f"{line_str}\t{fpath}:{str(int(line)+1)}")
             
-            ind = dlg_menu(DMENU_LIST, items, caption=_('Hotspots'))
+            ind = dlg_menu(DMENU_LIST+DMENU_CENTERED, items, caption=_('Hotspots'), w=1000)
             if ind is not None:
                 hotspot = hotspots[ind]
                 self.hotspot_open(hotspot['hotspot_type'], hotspot["data"])
