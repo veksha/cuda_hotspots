@@ -409,7 +409,7 @@ class Command:
         r = app_proc(PROC_COORD_MONITOR, 0)
         if r:
             w = (r[2]-r[0]) // 2
-            h = (r[3]-r[1]) // 3
+            h = (r[3]-r[1]) // 2
     
         return w, h
 
