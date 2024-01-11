@@ -1,5 +1,5 @@
 ﻿2024.01.10
-- fix: "Go to hotspot" dialog size is now auto calculated based on screen size (thanks ildar r. khasanshin)
+- fix: "Go to hotspot" dialog size is now auto calculated based on screen size (thanks ildar r. khasanshin and Alexey T.)
 
 2024.01.10
 - fix: "Go to hotspot" dialog is now centered and wider
