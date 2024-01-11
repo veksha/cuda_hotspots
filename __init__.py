@@ -403,6 +403,16 @@ class Command:
                 ed.set_text_all(output.decode())
                 ed.set_prop(PROP_MODIFIED, False)
 
+    def get_w_h(self):
+        w = 600
+        h = 600
+        r = app_proc(PROC_COORD_MONITOR, 0)
+        if r:
+            w = (r[2]-r[0]) // 2
+            h = (r[3]-r[1]) // 3
+    
+        return w, h
+
     def go_to_hotspot(self):
         hotspots = []
         self.action_collect_hotspots()
@@ -426,7 +436,8 @@ class Command:
                     fpath, line, line_str = i['data'].split(chr(3))[1:]
                     items.append(f"{line_str}\t{fpath}:{str(int(line)+1)}")
             
-            ind = dlg_menu(DMENU_LIST+DMENU_CENTERED, items, caption=_('Hotspots'), w=1000)
+            w, h = self.get_w_h()
+            ind = dlg_menu(DMENU_LIST+DMENU_CENTERED, items, caption=_('Hotspots'), w=w, h=h)
             if ind is not None:
                 hotspot = hotspots[ind]
                 self.hotspot_open(hotspot['hotspot_type'], hotspot["data"])
