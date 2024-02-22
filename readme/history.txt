@@ -1,4 +1,7 @@
-﻿2024.01.10
+2024.02.22
+- fix: do not show exception if git is not installed
+
+2024.01.11
 - fix: "Go to hotspot" dialog size is now auto calculated based on screen size (thanks ildar r. khasanshin and Alexey T.)
 
 2024.01.10

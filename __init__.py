@@ -44,7 +44,12 @@ def __git(params, cwd=None):
     if IS_WIN:
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    result = subprocess.run(params, capture_output=True, startupinfo=startupinfo, cwd=cwd)
+    
+    try:
+        result = subprocess.run(params, capture_output=True, startupinfo=startupinfo, cwd=cwd)
+    except:
+        return 1, None
+    
     return result.returncode, result.stdout if result.returncode == 0 else result.stderr
 
 def read_specific_line(fpath, line):
